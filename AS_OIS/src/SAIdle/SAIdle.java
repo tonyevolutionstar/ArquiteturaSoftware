@@ -8,13 +8,11 @@ package SAIdle;
 /**
  * @author omp
  */
-public class SAIdle implements IIdle_Customer,
-                               IIdle_Manager,
+public class SAIdle implements IIdle_Customer,                        
                                IIdle_Control {
 
     public SAIdle() {
     }
-    @Override
     public void idle() {
     }
     @Override

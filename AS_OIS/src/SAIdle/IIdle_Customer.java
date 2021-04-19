@@ -10,5 +10,5 @@ package SAIdle;
  * @author omp
  */
 public interface IIdle_Customer {
-    public void idle( int customerId );
+    public void idle( int customerId);
 }

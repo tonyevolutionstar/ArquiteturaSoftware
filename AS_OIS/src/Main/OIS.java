@@ -1,52 +1,91 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Main;
 
-import ActiveEntity.AECustomer;;
+import ActiveEntity.AECashier;
+import ActiveEntity.AECustomer;import ActiveEntity.AEManager;
+import SACorridor.ICorridor_Cashier;
+import SACorridor.SACorridor;
+import SACorridorHall.ICorridorHall_Manager;
+import SACorridorHall.SACorridorHall;
+import SAEntranceHall.IEntranceHall_Customer;
+import SAEntranceHall.IEntranceHall_Manager;
+import SAEntranceHall.SAEntranceHall;
+;
 import SAIdle.IIdle_Customer;
 import SAIdle.SAIdle;
 import SAOutsideHall.IOutsideHall_Customer;
+import SAOutsideHall.IOutsideHall_Manager;
 import SAOutsideHall.SAOutsideHall;
+import SAPaymentHall.IPaymentHall_Cashier;
+import SAPaymentHall.SAPaymentHall;
+import SAPaymentPoint.SAPaymentPoint;
+import static java.lang.Thread.sleep;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /*
  * @author omp
  */
 public class OIS extends javax.swing.JFrame {
 
-    /**
-     * Creates new form OIS
-     */
+    
     public OIS() {
         initComponents();
         initOIS();
     }
     private void initOIS() {
         final int MAX_CUSTOMERS = 99;
+        final int cto = 1;
+        final int sto = 1000;
         final int N_CORRIDOR_HALL = 3;
         final int N_CORRIDOR = 3;
         final int SIZE_ENTRANCE_HALL = 6;
         final int SIZE_CORRIDOR_HALL = 3;
-        // ....
         
         final SAIdle idle = new SAIdle();
         final SAOutsideHall outsideHall =  new SAOutsideHall( MAX_CUSTOMERS );
-        // outras SA ...
+        final SAEntranceHall entranceHall = new SAEntranceHall (SIZE_ENTRANCE_HALL); //fifo com 6 espaços
+        final SACorridorHall[] corridorHalls = new SACorridorHall[N_CORRIDOR_HALL];
+        final SACorridor[] corridors = new SACorridor[N_CORRIDOR];
+        final SAPaymentHall[] paymentHalls = new SAPaymentHall[N_CORRIDOR];
+        final SAPaymentPoint[] paymentPoints = new SAPaymentPoint[N_CORRIDOR];
         
         final AECustomer[] aeCustomer = new AECustomer[ MAX_CUSTOMERS ];
+        final AEManager aeManager = new AEManager(sto,(IOutsideHall_Manager) outsideHall, (IEntranceHall_Manager) entranceHall, corridorHalls); //sto
+        final AECashier[] aeCashier = new AECashier[3];
         
-        for ( int i = 0; i < MAX_CUSTOMERS; i++ ) {
-            aeCustomer[ i ] = new AECustomer( MAX_CUSTOMERS,
-                                              (IIdle_Customer) idle,
-                                              (IOutsideHall_Customer) outsideHall);
-            aeCustomer[ i ].start();
+        for(int i = 0; i < N_CORRIDOR_HALL; i++)
+        {
+           corridorHalls[i] = new SACorridorHall(SIZE_CORRIDOR_HALL);
+           corridors[i] = new SACorridor(10,corridorHalls[i].getFifo());
+           paymentHalls[i] = new SAPaymentHall(2);
+           paymentPoints[i] = new SAPaymentPoint(1);
+           aeCashier[i] = new AECashier(corridors[i],paymentHalls[i],paymentPoints[i],cto);
+           aeCashier[i].start();
         }
         
         
+        //Começar thread manager
+        aeManager.start();
+
         
-        // ...
+        for ( int i = 0; i < MAX_CUSTOMERS; i++ ) {
+            aeCustomer[ i ] = new AECustomer( i,cto,(IIdle_Customer) idle,(IOutsideHall_Customer) outsideHall, (IEntranceHall_Customer) entranceHall, corridorHalls,  corridors, paymentHalls, paymentPoints);
+            aeCustomer[ i ].start();
+        }
+
+        for(int i = 0 ;i < 3; i++)
+        {
+            try {
+                aeCashier[i].join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        try {
+           aeManager.join();
+        } catch ( Exception ex ) {}    
         
         try {
             for ( int i = 0; i < MAX_CUSTOMERS; i++ )

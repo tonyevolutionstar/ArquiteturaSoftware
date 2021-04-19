@@ -11,4 +11,5 @@ package SAOutsideHall;
  */
 public interface IOutsideHall_Manager {
     public void call();
+    public int getNumberOfCostumers();
 }

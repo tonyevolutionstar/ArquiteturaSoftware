@@ -65,8 +65,13 @@ public class FIFO implements IFIFO {
         idxIn = 0;
         idxOut = 0; 
     }
-    // Entrada no fifo. NOTA: o thead Customer pode ficar bloqueado à espera de 
-    // autorização para sair do fifo
+    
+    public int returnCount()
+    {
+        return count;
+    }
+
+    
     @Override
     public int in( int customerId ) {
         // variáveis locais
@@ -79,7 +84,7 @@ public class FIFO implements IFIFO {
             // se fifo cheio, espera na Condition cFull
             while ( count == maxCustomers )
                 cFull.await();
-                                   
+                              
             // esta operação não pode ser feita antes da anterior para
             // garantir q o idxIn utilizado é apenas deste Thread activo
             idx = idxIn;
@@ -92,11 +97,14 @@ public class FIFO implements IFIFO {
             // estar à espera q um Customer chegue. Necessério avisar Manager
             // q se encontra em espera na Condition cEmpty
             if ( count == 0 )
+            {
                 cEmpty.signal();
+            }
+                
             
             // incrementar número customers no fifo
             count++;
-            
+            //System.out.println("Teste-"+count);
             // ciclo à espera de autorização para sair do fifo
             while ( !leave[ idx ] )
                 // qd se faz await, permite-se q outros thread tenham acesso
@@ -131,6 +139,7 @@ public class FIFO implements IFIFO {
         finally {
             rl.unlock();
         }
+        
         // Customer a sair não só do fifo como tb a permitir q outros
         // threads possam entrar na zona crítica
         return id;
@@ -141,6 +150,7 @@ public class FIFO implements IFIFO {
     public void out() {
         try {
             rl.lock();
+            //System.out.println("COUNT"+count);
             // se fifo vazio, espera
             while ( count == 0 )
                 cEmpty.await();
@@ -156,7 +166,24 @@ public class FIFO implements IFIFO {
                 // qd se faz await, permite-se q outros thread tenham acesso
                 // à zona protegida pelo lock
                 cLeaving.await();  
-
+        } catch ( Exception ex ) {}
+        finally {
+            rl.unlock();
+        }
+    }
+    
+    
+    public void outCostumer() {
+        try {
+            rl.lock();
+            int idx = idxOut;
+            // atualizar idxOut
+            idxOut = (++idxOut) % maxCustomers; 
+            // autorizar a saída do customer q há mais tempo está no fifo
+            leave[ idx ] = true;
+            // acordar o customer
+            cStay[ idx ].signal();
+            // aguardar até q Customer saia do fifo 
         } catch ( Exception ex ) {}
         finally {
             rl.unlock();

@@ -1,8 +1,8 @@
-
-
 package ActiveEntity;
 
+import SAEntranceHall.SAEntranceHall;
 import SAIdle.IIdle_Control;
+import SAOutsideHall.SAOutsideHall;
 import java.net.Socket;
 
 /**
@@ -14,9 +14,13 @@ import java.net.Socket;
 public class AEControl extends Thread {
 
     private final IIdle_Control idle;
+    private final SAOutsideHall outsideHall;
+    private final SAEntranceHall entranceHall;
     
-    public AEControl( IIdle_Control idle /* mais áreas partilhadas */ ) {
+    public AEControl( IIdle_Control idle, SAOutsideHall outsideHall, SAEntranceHall entranceHall) {
         this.idle = idle;
+        this.outsideHall = outsideHall;
+        this.entranceHall = entranceHall;
     }
     public void start( int nCustomers, Socket socket ) {
         idle.start( nCustomers );
