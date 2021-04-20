@@ -25,7 +25,7 @@ public class AECustomer extends Thread {
     // id do customer
     private final int customerId;
     
-    private int whereTheCostumerIs = 0;
+    private int whereTheCostumerIs = -1;
     private int cto;
     private int idCorridor = 0;
     private int nTimesWalked = 0;
@@ -64,13 +64,19 @@ public class AECustomer extends Thread {
     public void run() {
         while ( exitFlag ) {
 
-            //idle.idle(customerId);
+            if(whereTheCostumerIs == -1)
+            {
+                System.out.println("VOU DORMIR"+customerId);
+                idle.idle(customerId);
+                System.out.println("ACORDEI!"+customerId);
+                whereTheCostumerIs ++;
+            }
             
             if(whereTheCostumerIs == 0)
             {
+                System.out.println("COSTUMER "+customerId+" - OutSideHall->"+customerId+"----" +whereTheCostumerIs);                
                 whereTheCostumerIs++;
                 outsideHall.in(customerId); 
-               // System.out.println("COSTUMER "+customerId+" - OutSideHall->"+customerId+"----" +whereTheCostumerIs);
                 
             }
             if(whereTheCostumerIs == 1)
@@ -98,7 +104,7 @@ public class AECustomer extends Thread {
             }
             if(whereTheCostumerIs == 3)
             {
-                //System.out.println("COSTUMER "+customerId+" - Corridor->"+idCorridor+"----"+whereTheCostumerIs+"----"+corridors[idCorridor].getNumberOfCostumers());
+             //   System.out.println("COSTUMER "+customerId+" - Corridor->"+idCorridor+"----"+whereTheCostumerIs+"----"+corridors[idCorridor].getNumberOfCostumers()+"-----"+corridorHalls[idCorridor].getNumberOfCostumers());
                 corridors[idCorridor].inCorridor(customerId,nTimesWalked,corridorHalls[idCorridor].getFifo());
                 try {
                     sleep(cto);
@@ -107,23 +113,23 @@ public class AECustomer extends Thread {
                 }
                 nTimesWalked++;
                 if(nTimesWalked == 10)
-                {
-                    whereTheCostumerIs++;
-                }                    
-
-                
+                {                    
+                    whereTheCostumerIs++;            
+                }                      
             }
             if(whereTheCostumerIs == 4)
             {
-                //System.out.println("COSTUMER "+customerId+" - PaymentHall->"+idCorridor+"----"+whereTheCostumerIs);
+               // System.out.println("COSTUMER "+customerId+" - PaymentHall->"+idCorridor+"----"+whereTheCostumerIs);
                 whereTheCostumerIs++;
+                
                 paymentHalls[idCorridor].in(customerId);
+             //   System.out.println(customerId+"????????????????????????????????????????????");
             }
             if(whereTheCostumerIs == 5)
             {
                 System.out.println("COSTUMER "+customerId+" - PaymentPoint->"+idCorridor+"----"+whereTheCostumerIs);
-                System.out.println("PAYMENTDONE!PAYMENTDONE!PAYMENTDONE!");
-                exitFlag= false;
+                nTimesWalked = 0;
+                whereTheCostumerIs=-1;
             }            
         }
     }

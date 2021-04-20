@@ -14,7 +14,6 @@ import FIFOCorridor.FIFOCorridor;
 public interface ICorridorHall_Customer {
     public void in(int customerId, int nextCountCorridor, boolean firstSlotOpen);
     public int getNumberOfCostumers();
-    public void call();
     public void callTeste();
     public FIFOCorridor getFifo();
 }

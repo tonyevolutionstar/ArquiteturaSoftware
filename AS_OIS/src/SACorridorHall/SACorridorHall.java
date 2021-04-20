@@ -18,11 +18,8 @@ public class SACorridorHall implements ICorridorHall_Customer,
         return getFifo().returnCount();
     }
     
+
     @Override
-    public void call() {
-        getFifo().out();
-    }
-    
     public void callTeste()
     {
         getFifo().outCostumer();

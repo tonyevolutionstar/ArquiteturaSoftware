@@ -31,19 +31,22 @@ public class AECashier extends Thread {
         while ( true ) {
          
             try {
-                sleep(1);
+                sleep(100);
             } catch (InterruptedException ex) {
                 Logger.getLogger(AECashier.class.getName()).log(Level.SEVERE, null, ex);
             }
+            //System.out.println(corridor.getNumberOfCostumers()+"----"+paymentHall.getNumberOfCostumers());
             if(corridor.checkFinal())
             {
-                System.out.println("ENTROU");
+               // System.out.println("ENTROU");
             }
-            if(corridor.checkFinal() && paymentHall.getNumberOfCostumers() < 2)
+            if(corridor.checkFinal() && paymentHall.getNumberOfCostumers() <= 2)
             {
-                System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
+              //  System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
+       
                 corridor.call();
-                System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
+               // System.out.println(totalFinished);
+                //System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
             }          
           
           if(paymentHall.getNumberOfCostumers() == 2)
@@ -53,7 +56,7 @@ public class AECashier extends Thread {
           
           if(paymentHall.getNumberOfCostumers() > 0)
           {
-              //System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint");
+            //  System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint");
               paymentHall.call();
               totalFinished++;
           }
@@ -61,7 +64,7 @@ public class AECashier extends Thread {
           
           if(corridor.getNumberOfCostumers()==0 && paymentHall.getNumberOfCostumers() ==0)
           {
-              System.out.println(totalFinished);
+             // System.out.println(totalFinished);
           }
 
         }

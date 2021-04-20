@@ -26,21 +26,22 @@ public class AEManager extends Thread {
     @Override
     public void run() {
         while ( exitFlag ) {
-            try {
-                sleep(sto);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(AEManager.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            
+                try {
+                    sleep(sto);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(AEManager.class.getName()).log(Level.SEVERE, null, ex);
+                }            
 
-            if(outsideHall.getNumberOfCostumers()!=0 && entranceHall.getNumberOfCostumers() != 6)
+            if(entranceHall.getNumberOfCostumers() != 6)
             {
-             //System.out.println("MANAGER ------ Thread manager vai chamar um costumer ao OutSideHall");
+             System.out.println("MANAGER ------ Thread manager vai chamar um costumer ao OutSideHall");
              outsideHall.call();   
              findBug++;
             }
             else
             {
-             System.out.println("MANAGER ---- Entrance Hall cheio  "+ entranceHall.getNumberOfCostumers()+ "  "+ outsideHall.getNumberOfCostumers()+"---_"+findBug);
+             //System.out.println("MANAGER ---- Entrance Hall cheio  "+ entranceHall.getNumberOfCostumers()+ "  "+ outsideHall.getNumberOfCostumers()+"---_"+findBug);
             }
             
             int fullCorridors = 0;
@@ -52,13 +53,12 @@ public class AEManager extends Thread {
                     fullCorridors++;
                 }
             }
-            
 
            // System.out.println("MANAGER ------ NUMERO DE CORREDORES CHEIOS -- "+fullCorridors);
             if(fullCorridors != 3)
             {
                 try {
-                    sleep(50);
+                    sleep(sto);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(AEManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -66,13 +66,10 @@ public class AEManager extends Thread {
             }
             else
             {
-                System.out.println("MANAGER ----CorridorHalls are full");
+           //     System.out.println("MANAGER ----CorridorHalls are full");
             }
-            if(entranceHall.getNumberOfCostumers()== 0 && outsideHall.getNumberOfCostumers()==0)
-            {
-                System.out.println("MANAGER ----ACAVB");
-                exitFlag= false;
-            }
+           // System.out.println("ENTRANCEHALL--"+entranceHall.getNumberOfCostumers()+"OUTSIDEHALL"+outsideHall.getNumberOfCostumers());
+
         }
     }
 }

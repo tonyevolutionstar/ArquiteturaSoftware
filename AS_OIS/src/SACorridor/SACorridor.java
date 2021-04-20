@@ -1,4 +1,5 @@
 package SACorridor;
+import ActiveEntity.AEManager;
 import FIFOCorridor.FIFOCorridor;
 import static java.lang.Thread.sleep;
 import java.util.logging.Level;
@@ -31,8 +32,12 @@ public class SACorridor implements ICorridor_Customer,
     @Override
     public void call() {
         fifo.out();
-       // corridorHallFifo.outCostumer();      
-        //System.out.println("ENTROU POR AQUI ENTROU POR AQUI ENTROU POR AQUI ENTROU POR AQUI ");
+        //System.out.println("VAI ACORDAR OUTRO THREAD AO HALL");
+        //System.out.println("PORQUE È QUE NÃO ENTRAS?"+corridorHallFifo.returnCount()+"---"+fifo.returnFirstSlot()+"----"+fifo.returnCount());
+        if(corridorHallFifo.returnCount()>=1 && fifo.returnFirstSlot()==true && fifo.returnCount()<2)
+        {
+            corridorHallFifo.outCostumer();                  
+        }
     }
     
     public boolean checkFinal()

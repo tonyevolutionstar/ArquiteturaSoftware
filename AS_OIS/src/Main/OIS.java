@@ -1,6 +1,7 @@
 package Main;
 
 import ActiveEntity.AECashier;
+import ActiveEntity.AEControl;
 import ActiveEntity.AECustomer;import ActiveEntity.AEManager;
 import SACorridor.ICorridor_Cashier;
 import SACorridor.SACorridor;
@@ -34,15 +35,15 @@ public class OIS extends javax.swing.JFrame {
         initOIS();
     }
     private void initOIS() {
-        final int MAX_CUSTOMERS = 99;
+        final int MAX_CUSTOMERS = 12;
         final int cto = 1;
-        final int sto = 1000;
+        final int sto = 100;
         final int N_CORRIDOR_HALL = 3;
         final int N_CORRIDOR = 3;
         final int SIZE_ENTRANCE_HALL = 6;
         final int SIZE_CORRIDOR_HALL = 3;
         
-        final SAIdle idle = new SAIdle();
+        final SAIdle idle = new SAIdle( MAX_CUSTOMERS );
         final SAOutsideHall outsideHall =  new SAOutsideHall( MAX_CUSTOMERS );
         final SAEntranceHall entranceHall = new SAEntranceHall (SIZE_ENTRANCE_HALL); //fifo com 6 espaços
         final SACorridorHall[] corridorHalls = new SACorridorHall[N_CORRIDOR_HALL];
@@ -50,9 +51,11 @@ public class OIS extends javax.swing.JFrame {
         final SAPaymentHall[] paymentHalls = new SAPaymentHall[N_CORRIDOR];
         final SAPaymentPoint[] paymentPoints = new SAPaymentPoint[N_CORRIDOR];
         
+        
         final AECustomer[] aeCustomer = new AECustomer[ MAX_CUSTOMERS ];
         final AEManager aeManager = new AEManager(sto,(IOutsideHall_Manager) outsideHall, (IEntranceHall_Manager) entranceHall, corridorHalls); //sto
         final AECashier[] aeCashier = new AECashier[3];
+        final AEControl aeControl = new AEControl(aeCustomer,aeManager,aeCashier,idle,outsideHall,entranceHall);
         
         for(int i = 0; i < N_CORRIDOR_HALL; i++)
         {
@@ -65,15 +68,15 @@ public class OIS extends javax.swing.JFrame {
         }
         
         
-        //Começar thread manager
-        aeManager.start();
-
-        
         for ( int i = 0; i < MAX_CUSTOMERS; i++ ) {
             aeCustomer[ i ] = new AECustomer( i,cto,(IIdle_Customer) idle,(IOutsideHall_Customer) outsideHall, (IEntranceHall_Customer) entranceHall, corridorHalls,  corridors, paymentHalls, paymentPoints);
             aeCustomer[ i ].start();
         }
 
+                //Começar thread manager
+        aeManager.start();
+        aeControl.start();
+        
         for(int i = 0 ;i < 3; i++)
         {
             try {
@@ -81,6 +84,12 @@ public class OIS extends javax.swing.JFrame {
             } catch (InterruptedException ex) {
                 Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+        
+        try {
+            aeControl.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         try {
