@@ -32,7 +32,7 @@ public class AECustomer extends Thread {
     public void run() {
         while ( true ) {
             // thread avança para Idle
-            idle.idle(customerId );
+            //idle.idle(customerId );
             // se simulação activa (não suspend, não stop, não end), thread avança para o outsideHall
             outsideHall.in( customerId );
             // mais
