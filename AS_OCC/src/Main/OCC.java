@@ -5,17 +5,12 @@
  */
 package Main;
 
+import ComunicationOCC.ClientOCC;
+import ComunicationOCC.ServerOCC;
 import java.awt.Color;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,22 +25,23 @@ public class OCC extends javax.swing.JFrame {
      * Creates new form OIS
      */
     private static int N_Customers; // [1,99] default 10
-    private static int cto; 
+    private static int cto;
     private static String som;
     private static int sto;
-    
+    private static String Message;
+    private static String[] ST_Customer;
+    private static String ST_Cashier;
+    private static String ST_Manager;
+    private static String messageButton;
+
     public OCC() {
         initComponents();
-        initOCC();
         state_info.setVisible(false);
         aviso.setVisible(false);
         permitButton.setVisible(false);
+    }
 
-    }
-    
-    private void initOCC() {
-       
-    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -69,21 +65,19 @@ public class OCC extends javax.swing.JFrame {
         Supervisor_label = new javax.swing.JLabel();
         supervisor_value = new javax.swing.JComboBox<>();
         sto_label = new javax.swing.JLabel();
+        sto_value = new javax.swing.JComboBox<>();
+        aviso = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
         state_info = new javax.swing.JPanel();
         Customer_info = new javax.swing.JLabel();
         Manager_info = new javax.swing.JLabel();
         Cashier_info = new javax.swing.JLabel();
         cashier_panel = new javax.swing.JPanel();
-        state_cashier = new javax.swing.JLabel();
         customer_panel = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         manager_panel = new javax.swing.JPanel();
-        state_manager = new javax.swing.JLabel();
-        sto_value = new javax.swing.JComboBox<>();
-        aviso = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
         permitButton = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -107,22 +101,11 @@ public class OCC extends javax.swing.JFrame {
         n_costumers_label.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         n_costumers_label.setText("Total Number of customers:");
 
-        ncustomers.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ncustomersActionPerformed(evt);
-            }
-        });
-
         movement_label.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         movement_label.setText("Timeout for the movement of each customer:");
 
         timeOut_Customers.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "100", "250", "500", "1000", "0" }));
         timeOut_Customers.setToolTipText("");
-        timeOut_Customers.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                timeOut_CustomersActionPerformed(evt);
-            }
-        });
 
         start_b.setBackground(new java.awt.Color(0, 153, 0));
         start_b.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -187,8 +170,19 @@ public class OCC extends javax.swing.JFrame {
         sto_label.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         sto_label.setText("STO:");
 
+        sto_value.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "100", "2500", "2500", "5000" }));
+
+        aviso.setFont(new java.awt.Font("Tahoma", 1, 8)); // NOI18N
+        aviso.setForeground(new java.awt.Color(255, 51, 51));
+        aviso.setText("jLabel1");
+
         state_info.setBackground(new java.awt.Color(0, 153, 0));
         state_info.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        state_info.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                client(evt);
+            }
+        });
 
         Customer_info.setBackground(new java.awt.Color(255, 255, 255));
         Customer_info.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -203,22 +197,15 @@ public class OCC extends javax.swing.JFrame {
         Cashier_info.setForeground(new java.awt.Color(255, 255, 255));
         Cashier_info.setText("Cashier");
 
-        state_cashier.setText("State");
-
         javax.swing.GroupLayout cashier_panelLayout = new javax.swing.GroupLayout(cashier_panel);
         cashier_panel.setLayout(cashier_panelLayout);
         cashier_panelLayout.setHorizontalGroup(
             cashier_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, cashier_panelLayout.createSequentialGroup()
-                .addContainerGap(48, Short.MAX_VALUE)
-                .addComponent(state_cashier)
-                .addGap(46, 46, 46))
+            .addGap(0, 120, Short.MAX_VALUE)
         );
         cashier_panelLayout.setVerticalGroup(
             cashier_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(cashier_panelLayout.createSequentialGroup()
-                .addComponent(state_cashier)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 174, Short.MAX_VALUE)
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -284,22 +271,15 @@ public class OCC extends javax.swing.JFrame {
                 .addGap(0, 148, Short.MAX_VALUE))
         );
 
-        state_manager.setText("State");
-
         javax.swing.GroupLayout manager_panelLayout = new javax.swing.GroupLayout(manager_panel);
         manager_panel.setLayout(manager_panelLayout);
         manager_panelLayout.setHorizontalGroup(
             manager_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(manager_panelLayout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addComponent(state_manager)
-                .addContainerGap(56, Short.MAX_VALUE))
+            .addGap(0, 120, Short.MAX_VALUE)
         );
         manager_panelLayout.setVerticalGroup(
             manager_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(manager_panelLayout.createSequentialGroup()
-                .addComponent(state_manager)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 174, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout state_infoLayout = new javax.swing.GroupLayout(state_info);
@@ -309,17 +289,17 @@ public class OCC extends javax.swing.JFrame {
             .addGroup(state_infoLayout.createSequentialGroup()
                 .addGap(55, 55, 55)
                 .addComponent(customer_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(98, 98, 98)
+                .addGap(124, 124, 124)
                 .addComponent(manager_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 147, Short.MAX_VALUE)
                 .addComponent(cashier_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(72, 72, 72))
+                .addGap(69, 69, 69))
             .addGroup(state_infoLayout.createSequentialGroup()
                 .addGap(68, 68, 68)
                 .addComponent(Customer_info)
-                .addGap(195, 195, 195)
-                .addComponent(Manager_info)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(Manager_info)
+                .addGap(201, 201, 201)
                 .addComponent(Cashier_info)
                 .addGap(118, 118, 118))
         );
@@ -339,21 +319,20 @@ public class OCC extends javax.swing.JFrame {
                 .addGap(37, 37, 37))
         );
 
-        sto_value.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "100", "2500", "2500", "5000" }));
-
-        aviso.setFont(new java.awt.Font("Tahoma", 1, 8)); // NOI18N
-        aviso.setForeground(new java.awt.Color(255, 51, 51));
-        aviso.setText("jLabel1");
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 46, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(state_info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 77, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(state_info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         permitButton.setText("next");
@@ -363,17 +342,14 @@ public class OCC extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(52, 52, 52)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16)
-                .addComponent(state_info, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
                 .addGap(360, 360, 360)
                 .addComponent(occ_label, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(52, 52, 52)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(76, 76, 76)
                         .addComponent(start_b, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -413,28 +389,27 @@ public class OCC extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(occ_label)
+                .addGap(45, 45, 45)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(n_costumers_label)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(Supervisor_label)
+                        .addComponent(ncustomers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(aviso))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(supervisor_value, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(permitButton)))
+                .addGap(28, 28, 28)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(movement_label)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(timeOut_Customers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(sto_label))
+                    .addComponent(sto_value, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(81, 81, 81)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(45, 45, 45)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(n_costumers_label)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(Supervisor_label)
-                                .addComponent(ncustomers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(aviso))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(supervisor_value, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(permitButton)))
-                        .addGap(28, 28, 28)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(movement_label)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(timeOut_Customers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(sto_label))
-                            .addComponent(sto_value, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(75, 75, 75)
-                        .addComponent(state_info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(suspend_b, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -445,21 +420,16 @@ public class OCC extends javax.swing.JFrame {
                                 .addComponent(end_b, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(56, 56, 56))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(197, 197, 197)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(147, Short.MAX_VALUE))))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void ncustomersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ncustomersActionPerformed
-        // TODO add your handling code here:
-        //state_info.setVisible(true);
-    }//GEN-LAST:event_ncustomersActionPerformed
-
     private void start_bActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_bActionPerformed
         // TODO add your handling code here:
+        
 
     }//GEN-LAST:event_start_bActionPerformed
 
@@ -478,59 +448,64 @@ public class OCC extends javax.swing.JFrame {
     //start everything
     private void show_painel(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_show_painel
         // TODO add your handling code here:
-          String get_input_n_customers = ncustomers.getText();
-          cto = Integer.parseInt(timeOut_Customers.getSelectedItem().toString());
-          sto = Integer.parseInt(sto_value.getSelectedItem().toString());
-          som = supervisor_value.getSelectedItem().toString();
-          
-          if(som.equals("manual"))
-              permitButton.setVisible(true);
-          
-          if(get_input_n_customers.isEmpty()){
-              //try {
-                  N_Customers = 10; // default
-                  System.out.println("Input certo, o valor esta entre 1 e 99, o valor inserido é: " + N_Customers );
-                  state_info.setVisible(true);
-                  //Server(60013);
-              //} catch (IOException ex) {
-               //   Logger.getLogger(OCC.class.getName()).log(Level.SEVERE, null, ex);
-              //}
-          }else
-          {
-              N_Customers = Integer.parseInt(get_input_n_customers);
-              if(N_Customers >= 1 && N_Customers <= 99)
-              {
-                  //try {
-                      //System.out.println("Input certo, o valor esta entre 1 e 99, o valor inserido é: " + N_Customers );
-                      
-                      state_info.setVisible(true);
-                      ncustomers.setText("");
-                      //ServerOCC server = new Server(60013,N_customers);
-                      //Server(60013);
-                   
-                      aviso.setText("");
-                      StringBuilder message = new StringBuilder();
-                      message.append(N_Customers).append(";").append(cto).append(";").append(som).append(";").append(sto); // send all parameters to OIS
-                      
-                  //} catch (IOException ex) {
-                   //   Logger.getLogger(OCC.class.getName()).log(Level.SEVERE, null, ex);
-                  //}
-              }else
-              {
-                  System.out.println("Input errado, tem de estar entre 1 e 99");
-      
-                  aviso.setText("errado, [1,99]");
-                  aviso.setVisible(true);
-                  
-                  ncustomers.setText("");
-              }
-          }
-         //aviso.setText("");
+        String get_input_n_customers = ncustomers.getText();
+        cto = Integer.parseInt(timeOut_Customers.getSelectedItem().toString());
+        sto = Integer.parseInt(sto_value.getSelectedItem().toString());
+        som = supervisor_value.getSelectedItem().toString();
+
+        if (som.equals("manual")) {
+            permitButton.setVisible(true);
+        } else {
+            permitButton.setVisible(true);
+        }
+
+        if (get_input_n_customers.isEmpty()) {
+            N_Customers = 10; // default
+            System.out.println("Input certo, o valor esta entre 1 e 99, o valor inserido é: " + N_Customers);
+            state_info.setVisible(true);
+            StringBuilder message = new StringBuilder();
+            message.append(N_Customers).append(";").append(cto).append(";").append(som).append(";").append(sto); // send all parameters to OIS
+            System.out.println("parameters: " + message);
+            try {
+                ServerOCC server = new ServerOCC(60013, message.toString());
+            } catch (IOException ex) {
+                Logger.getLogger(OCC.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            N_Customers = Integer.parseInt(get_input_n_customers);
+            if (N_Customers >= 1 && N_Customers <= 99) {
+                state_info.setVisible(true);
+                ncustomers.setText("");
+                aviso.setText("");
+                StringBuilder message = new StringBuilder();
+                message.append(N_Customers).append(";").append(cto).append(";").append(som).append(";").append(sto); // send all parameters to OIS
+                System.out.println("parameters: " + message);
+                try {
+                    ServerOCC server = new ServerOCC(60013, message.toString());
+                } catch (IOException ex) {
+                    Logger.getLogger(OCC.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                System.out.println("Input errado, tem de estar entre 1 e 99");
+                aviso.setText("errado, [1,99]");
+                aviso.setVisible(true);
+                ncustomers.setText("");
+            }
+        }
     }//GEN-LAST:event_show_painel
 
-    private void timeOut_CustomersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timeOut_CustomersActionPerformed
+    private void client(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_client
         // TODO add your handling code here:
-    }//GEN-LAST:event_timeOut_CustomersActionPerformed
+
+        try {
+            ClientOCC clientocc = new ClientOCC(6003);
+            
+            //String[] variables = Message.split(";");
+            //System.out.println("Message " + Message);
+        } catch (IOException ex) {
+            Logger.getLogger(OCC.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_client
 
     /**
      * @param args the command line arguments
@@ -560,16 +535,14 @@ public class OCC extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
         /* Create and display the form */
-        
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new OCC().setVisible(true);
             }
         });
     }
-    
-   
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Cashier_info;
@@ -593,9 +566,7 @@ public class OCC extends javax.swing.JFrame {
     private javax.swing.JButton permitButton;
     private javax.swing.JButton resume_b;
     private javax.swing.JButton start_b;
-    private javax.swing.JLabel state_cashier;
     private javax.swing.JPanel state_info;
-    private javax.swing.JLabel state_manager;
     private javax.swing.JLabel sto_label;
     private javax.swing.JComboBox<String> sto_value;
     private javax.swing.JButton stop_b;

@@ -7,119 +7,127 @@ package Main;
 
 import ActiveEntity.AECashier;
 import ActiveEntity.AEControl;
-import ActiveEntity.AECustomer;import ActiveEntity.AEManager;
+import ActiveEntity.AECustomer;
+import ActiveEntity.AEManager;
+import Communication.CClient;
+import Communication.ListeningChanges;
 import SACorridor.SACorridor;
 import SACorridorHall.SACorridorHall;
 import SAEntranceHall.IEntranceHall_Customer;
 import SAEntranceHall.IEntranceHall_Manager;
 import SAEntranceHall.SAEntranceHall;
-;
-import SAIdle.IIdle_Customer;
-import SAIdle.SAIdle;
-import SAOutsideHall.IOutsideHall_Customer;
-import SAOutsideHall.SAOutsideHall;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;import SAIdle.IIdle_Customer;
+import SAIdle.IIdle_Customer;
 import SAIdle.SAIdle;
 import SAOutsideHall.IOutsideHall_Customer;
 import SAOutsideHall.IOutsideHall_Manager;
 import SAOutsideHall.SAOutsideHall;
 import SAPaymentHall.SAPaymentHall;
 import SAPaymentPoint.SAPaymentPoint;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.lang.System.Logger;
-import java.net.Socket;
+
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-
-/*
- * @author omp
- */
 public class OIS extends javax.swing.JFrame {
-    //final int MAXCUSTOMERS = 10;
+
     /**
      * Creates new form OIS
      */
- public OIS() {
+
+    public static int MAX_CUSTOMERS;
+    static int cto;
+    static int sto;
+
+    public OIS() {
         initComponents();
-        initOIS();
+        try {
+            //obtain data from occ
+            CClient client = new CClient(60013);
+            String[] variables = client.getMessage().split(";");
+            // System.out.println(variables);
+            MAX_CUSTOMERS = Integer.parseInt(variables[0]);
+            cto = Integer.parseInt(variables[1]);
+            sto = Integer.parseInt(variables[3]);
+
+            initOIS();
+
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    private void initOIS() {
-        final int MAX_CUSTOMERS = 12;
-        final int cto = 1;
-        final int sto = 100;
+
+    private static void initOIS() {
         final int N_CORRIDOR_HALL = 3;
         final int N_CORRIDOR = 3;
         final int SIZE_ENTRANCE_HALL = 6;
         final int SIZE_CORRIDOR_HALL = 3;
-        
-        final SAIdle idle = new SAIdle( MAX_CUSTOMERS );
-        final SAOutsideHall outsideHall =  new SAOutsideHall( MAX_CUSTOMERS );
-        final SAEntranceHall entranceHall = new SAEntranceHall (SIZE_ENTRANCE_HALL); //fifo com 6 espaços
-        final SACorridorHall[] corridorHalls = new SACorridorHall[N_CORRIDOR_HALL];
-        final SACorridor[] corridors = new SACorridor[N_CORRIDOR];
-        final SAPaymentHall[] paymentHalls = new SAPaymentHall[N_CORRIDOR];
-        final SAPaymentPoint[] paymentPoints = new SAPaymentPoint[N_CORRIDOR];
-        
-        
-        final AECustomer[] aeCustomer = new AECustomer[ MAX_CUSTOMERS ];
-        final AEManager aeManager = new AEManager(sto,(IOutsideHall_Manager) outsideHall, (IEntranceHall_Manager) entranceHall, corridorHalls); //sto
-        final AECashier[] aeCashier = new AECashier[3];
-        final AEControl aeControl = new AEControl(aeCustomer,aeManager,aeCashier,idle,outsideHall,entranceHall);
-        
-        for(int i = 0; i < N_CORRIDOR_HALL; i++)
-        {
-           corridorHalls[i] = new SACorridorHall(SIZE_CORRIDOR_HALL);
-           corridors[i] = new SACorridor(10,corridorHalls[i].getFifo());
-           paymentHalls[i] = new SAPaymentHall(2);
-           paymentPoints[i] = new SAPaymentPoint(1);
-           aeCashier[i] = new AECashier(corridors[i],paymentHalls[i],paymentPoints[i],cto);
-           aeCashier[i].start();
-        }
-        
-        
-        for ( int i = 0; i < MAX_CUSTOMERS; i++ ) {
-            aeCustomer[ i ] = new AECustomer( i,cto,(IIdle_Customer) idle,(IOutsideHall_Customer) outsideHall, (IEntranceHall_Customer) entranceHall, corridorHalls,  corridors, paymentHalls, paymentPoints);
-            aeCustomer[ i ].start();
+
+        SAIdle idle = new SAIdle(MAX_CUSTOMERS);
+        SAOutsideHall outsideHall = new SAOutsideHall(MAX_CUSTOMERS);
+        SAEntranceHall entranceHall = new SAEntranceHall(SIZE_ENTRANCE_HALL); //fifo com 6 espaços
+        SACorridorHall[] corridorHalls = new SACorridorHall[N_CORRIDOR_HALL];
+        SACorridor[] corridors = new SACorridor[N_CORRIDOR];
+        SAPaymentHall[] paymentHalls = new SAPaymentHall[N_CORRIDOR];
+        SAPaymentPoint[] paymentPoints = new SAPaymentPoint[N_CORRIDOR];
+
+        AECustomer[] aeCustomer = new AECustomer[MAX_CUSTOMERS];
+
+        AEManager aeManager = new AEManager(sto, (IOutsideHall_Manager) outsideHall, (IEntranceHall_Manager) entranceHall, corridorHalls); //sto
+        AECashier[] aeCashier = new AECashier[3];
+        AEControl aeControl = new AEControl(aeCustomer, aeManager, aeCashier, idle, outsideHall, entranceHall);
+
+        synchronized (ListeningChanges.class) {
+            try {
+                ListeningChanges.getInstance().open_server(6003);
+            } catch (IOException ex) {
+                Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
-                //Começar thread manager
+        for (int i = 0; i < N_CORRIDOR_HALL; i++) {
+            corridorHalls[i] = new SACorridorHall(SIZE_CORRIDOR_HALL);
+            corridors[i] = new SACorridor(10, corridorHalls[i].getFifo());
+            paymentHalls[i] = new SAPaymentHall(2);
+            paymentPoints[i] = new SAPaymentPoint(1);
+            aeCashier[i] = new AECashier(corridors[i], paymentHalls[i], paymentPoints[i], cto);
+            aeCashier[i].start();
+        }
+
+        for (int i = 0; i < MAX_CUSTOMERS; i++) {
+            aeCustomer[i] = new AECustomer(i, cto, (IIdle_Customer) idle, (IOutsideHall_Customer) outsideHall, (IEntranceHall_Customer) entranceHall, corridorHalls, corridors, paymentHalls, paymentPoints);
+            aeCustomer[i].start();
+        }
+
+        //Começar thread manager
         aeManager.start();
         aeControl.start();
-        
-        for(int i = 0 ;i < 3; i++)
-        {
+
+        for (int i = 0; i < 3; i++) {
             try {
                 aeCashier[i].join();
             } catch (InterruptedException ex) {
                 java.util.logging.Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+
         try {
             aeControl.join();
         } catch (InterruptedException ex) {
             java.util.logging.Logger.getLogger(OIS.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         try {
-           aeManager.join();
-        } catch ( Exception ex ) {}    
-        
+            aeManager.join();
+        } catch (InterruptedException ex) {
+        }
+
         try {
-            for ( int i = 0; i < MAX_CUSTOMERS; i++ )
-                aeCustomer[ i ].join();
-        } catch ( Exception ex ) {}    
-            
+            for (int i = 0; i < MAX_CUSTOMERS; i++) {
+                aeCustomer[i].join();
+            }
+        } catch (InterruptedException ex) {
+        }
+
     }
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1164,7 +1172,7 @@ public class OIS extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-      /**
+    /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -1183,11 +1191,9 @@ public class OIS extends javax.swing.JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(OIS.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-     //</editor-fold>
-     
         //</editor-fold>
 
-        
+        //</editor-fold>
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -1196,7 +1202,6 @@ public class OIS extends javax.swing.JFrame {
             }
         });
     }
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel CorridorHallLabel;

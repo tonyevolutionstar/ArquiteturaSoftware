@@ -17,6 +17,10 @@ public class AECashier extends Thread {
     private int customerCto;
     private int totalFinished;
    
+    public enum State{
+        IDLE,
+        PAYMENTBOX
+    }
     
     public AECashier(SACorridor  corridor,IPaymentHall_Cashier paymentHall, IPaymentPoint_Cashier paymentPoint, int customerCto) {
         this.corridor = corridor;
@@ -35,11 +39,7 @@ public class AECashier extends Thread {
             } catch (InterruptedException ex) {
                 Logger.getLogger(AECashier.class.getName()).log(Level.SEVERE, null, ex);
             }
-            //System.out.println(corridor.getNumberOfCostumers()+"----"+paymentHall.getNumberOfCostumers());
-            if(corridor.checkFinal())
-            {
-               // System.out.println("ENTROU");
-            }
+         
             if(corridor.checkFinal() && paymentHall.getNumberOfCostumers() <= 2)
             {
               //  System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());

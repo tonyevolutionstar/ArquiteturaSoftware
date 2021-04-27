@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Communication;
+package ComunicationOCC;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,30 +13,28 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Criar cliente para enviar comandos para o OCC.
  *
- * @author omp
+ * @author tonya
  */
-public class CClient {
+public class ClientOCC {
 
-    // RECEIVE INFORMATION FROM OCC, MEANS SERVER -> CLIENT, SO WILL RECEIVE DATA FROM OCC
     String message;
 
-    public CClient(int port) throws IOException {
+    public ClientOCC(int port) throws IOException {
         System.out.println("Connecting to 127.0.0.1 " + " on port " + port);
         try (Socket client = new Socket("127.0.0.1", port)) {
-            System.out.println("Just conne" + client.getRemoteSocketAddress());
+            System.out.println("Just connected to ois " + client.getRemoteSocketAddress());
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
-            out.writeUTF("Hello from " + client.getLocalSocketAddress() + " port: " + +port);
+            out.writeUTF("Hello from ois" + client.getLocalSocketAddress() + " port: " + +port);
             InputStream inFromServer = client.getInputStream();
             DataInputStream in = new DataInputStream(inFromServer);
-            message = in.readUTF();
+            while(client.isConnected()){
+                String line = in.readUTF();  
+               System.out.println("server ois says: " + line);
+            }
         }
     }
 
-    public String getMessage() {
-        return this.message;
-    }
-
+    public String getMessage() { return this.message; }
 }

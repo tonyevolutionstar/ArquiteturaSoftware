@@ -15,7 +15,6 @@ import java.util.logging.Logger;
  * @author omp
  */
 public class AEControl extends Thread {
-
     private final IIdle_Control idle;
     private final SAOutsideHall outsideHall;
     private final SAEntranceHall entranceHall;
