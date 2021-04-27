@@ -101,7 +101,7 @@ public class FIFOCorridor implements IFIFOCorridor {
 
     //CORRIDORS
     @Override
-    public int inCostumer( int customerId, int nTimesWalked) {
+    public int inCostumer( int customerId, int nTimesWalked, FIFOCorridor fifoCorridorHall) {
         // variáveis locais
         int idx;
         int id = 0;
@@ -134,6 +134,13 @@ public class FIFOCorridor implements IFIFOCorridor {
 
             System.out.println("IN("+customerId+")"+Arrays.toString(this.customerId));
             System.out.println("TESTE-"+this.customerId[9]+"--"+count);
+            
+            //Verificar se é possivle chamar outro costumer para o corridor
+            if(nTimesWalked >= 2 && count==1 &&fifoCorridorHall.returnCount()>0)
+            {
+                System.out.println("VAI CHAMAR OUTRO COSTUMER PRESO NO CORRIDORHALL--"+fifoCorridorHall.returnCount());
+                fifoCorridorHall.outCostumer();
+            }
             
             // ciclo à espera de autorização para sair do fifo
             if(this.customerId[9]==customerId || stuck8 == 1)
@@ -185,7 +192,7 @@ public class FIFOCorridor implements IFIFOCorridor {
             // garantir acesso em exclusividade
             rl.lock();
                              
-                        // se fifo cheio, espera na Condition cFull
+            // se fifo cheio, espera na Condition cFull
             while ( count == maxCustomers )
             cFull.await();
                               
@@ -213,19 +220,14 @@ public class FIFOCorridor implements IFIFOCorridor {
             
             // System.out.println("DENTRO COSTUMER "+customerId+"IDX"+idx+"------"+totalCount+firstSlotOpen+nextCountCorridor);
             // ciclo à espera de autorização para sair do fifo
-            if(totalCount >= 2 || firstSlotOpen == false)
-            {
-               if(nextCountCorridor == 2 || firstSlotOpen == false)
+            if(nextCountCorridor >= 1 || firstSlotOpen == false)
                {
                    while ( !leave[ idx ] )
                    // qd se faz await, permite-se q outros thread tenham acesso
                    // à zona protegida pelo lock
                    cStay[ idx ].await();  
                }   
-            }
             
-            
-
             // id do Customer q está a sair do fifo
             id = this.customerId[ idx ];
                     
@@ -257,6 +259,9 @@ public class FIFOCorridor implements IFIFOCorridor {
     public void out() {
         try {
             rl.lock();
+            
+            while ( count == 0 )
+                cEmpty.await();            
            
             if(this.customerId[8]!= 999)
             {

@@ -21,9 +21,12 @@ public class AEControl extends Thread {
     private final SAEntranceHall entranceHall;
     private final AECustomer[] aeCustomer;
     private final AEManager aeManager;
-    private final AECashier[] aeCashier;
+    private final AECashier aeCashier;
+    private int teste= 1;
 
-    public AEControl(AECustomer[] aeCustomer, AEManager aeManager, AECashier[] aeCashier, SAIdle idle, SAOutsideHall outsideHall, SAEntranceHall entranceHall) {
+
+
+    public AEControl(AECustomer[] aeCustomer, AEManager aeManager, AECashier aeCashier, SAIdle idle, SAOutsideHall outsideHall, SAEntranceHall entranceHall) {
         this.idle = idle;
         this.outsideHall = outsideHall;
         this.entranceHall = entranceHall;
@@ -45,10 +48,9 @@ public class AEControl extends Thread {
         {
             aeCustomer[i].suspend();
         }
-        for(int i=0;i<3;i++)
-        {
-            aeCashier[i].suspend();
-        }
+
+        aeCashier.suspend();
+        
     }
     
     public void resumeShopping() {
@@ -57,10 +59,8 @@ public class AEControl extends Thread {
         {
             aeCustomer[i].resume();
         }
-        for(int i=0;i<3;i++)
-        {
-            aeCashier[i].resume();
-        }
+        
+        aeCashier.resume();
     }
     
     public void stopShopping()
@@ -75,30 +75,76 @@ public class AEControl extends Thread {
         
         //RECEBER DADOS DO SOCKET
         try {
-            sleep(5000);
+            sleep(100);
         } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.start(12);
-     /*   try {
+        if(teste==1)
+        {
+            this.start(99);  
+            teste=0;
+        }
+        
+
+            
+        /*
+        try {
+            sleep(2500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       // this.aeManager.letCostumerInEntranceHall();
+        try {
+            sleep(2500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       // this.aeManager.letCostumerInCorridorHall();
+                try {
+            sleep(2500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       // this.aeManager.letCostumerInEntranceHall();
+                try {
+            sleep(2500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       // this.aeManager.letCostumerInEntranceHall();
+                try {
+            sleep(2500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.aeManager.letCostumerInCorridorHall();
+        
+        
+        
+        try {
+            sleep(100000);
+            /*   try {
             sleep(500);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        //System.exit(0);
-        suspendShopping();
-        try {
+            }
+            //System.exit(0);
+            suspendShopping();
+            try {
             sleep(5000);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        resumeShopping();
-        try {
+            }
+            resumeShopping();
+            try {
             sleep(10000);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            start(12);
+              } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        start(12);
-*/
+        */
     }
 }

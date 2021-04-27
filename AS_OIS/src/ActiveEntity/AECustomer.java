@@ -41,15 +41,15 @@ public class AECustomer extends Thread {
     //área partilhada Corridors
     private final SACorridor corridors [];
     
-    private final SAPaymentHall paymentHalls [];
+    private final SAPaymentHall paymentHall;
     
-    private final SAPaymentPoint paymentPoints [];
+    private final SAPaymentPoint paymentPoint;
     
     private boolean exitFlag = true;
     
     
     
-    public AECustomer( int customerId,int cto ,IIdle_Customer idle, IOutsideHall_Customer outsideHall , IEntranceHall_Customer entranceHall, ICorridorHall_Customer corridorHalls [], SACorridor corridors [], SAPaymentHall paymentHalls [], SAPaymentPoint paymentPoints []) {
+    public AECustomer( int customerId,int cto ,IIdle_Customer idle, IOutsideHall_Customer outsideHall , IEntranceHall_Customer entranceHall, ICorridorHall_Customer corridorHalls [], SACorridor corridors [], SAPaymentHall paymentHall, SAPaymentPoint paymentPoint) {
         this.customerId = customerId;
         this.idle = idle;
         this.outsideHall = outsideHall;
@@ -57,8 +57,8 @@ public class AECustomer extends Thread {
         this.corridorHalls = corridorHalls;
         this.cto = cto;
         this.corridors = corridors;
-        this.paymentHalls = paymentHalls;
-        this.paymentPoints = paymentPoints;
+        this.paymentHall = paymentHall;
+        this.paymentPoint = paymentPoint;
     }
     @Override
     public void run() {
@@ -122,7 +122,7 @@ public class AECustomer extends Thread {
                // System.out.println("COSTUMER "+customerId+" - PaymentHall->"+idCorridor+"----"+whereTheCostumerIs);
                 whereTheCostumerIs++;
                 
-                paymentHalls[idCorridor].in(customerId);
+                paymentHall.in(customerId);
              //   System.out.println(customerId+"????????????????????????????????????????????");
             }
             if(whereTheCostumerIs == 5)

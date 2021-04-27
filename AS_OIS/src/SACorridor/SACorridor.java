@@ -36,7 +36,7 @@ public class SACorridor implements ICorridor_Customer,
         //System.out.println("PORQUE È QUE NÃO ENTRAS?"+corridorHallFifo.returnCount()+"---"+fifo.returnFirstSlot()+"----"+fifo.returnCount());
         if(corridorHallFifo.returnCount()>=1 && fifo.returnFirstSlot()==true && fifo.returnCount()<2)
         {
-            corridorHallFifo.outCostumer();                  
+         //   corridorHallFifo.outCostumer();                  
         }
     }
     
@@ -48,6 +48,6 @@ public class SACorridor implements ICorridor_Customer,
 
     @Override
     public void inCorridor(int customerId,int nTimesWalked,FIFOCorridor corridorHallFifo) {
-        fifo.inCostumer(customerId,nTimesWalked);
+        fifo.inCostumer(customerId,nTimesWalked,corridorHallFifo);
     }
 }

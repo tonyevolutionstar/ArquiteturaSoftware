@@ -4,6 +4,7 @@ import SACorridor.SACorridor;
 import SAPaymentHall.IPaymentHall_Cashier;
 import SAPaymentHall.SAPaymentHall;
 import SAPaymentPoint.IPaymentPoint_Cashier;
+import SAPaymentPoint.SAPaymentPoint;
 import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,16 +14,16 @@ public class AECashier extends Thread {
 
     private final IPaymentHall_Cashier paymentHall;
     private final IPaymentPoint_Cashier paymentPoint;
-    private final SACorridor corridor;
+    private final SACorridor [] corridors;
     private int customerCto;
     private int totalFinished;
    
-    
-    public AECashier(SACorridor  corridor,IPaymentHall_Cashier paymentHall, IPaymentPoint_Cashier paymentPoint, int customerCto) {
-        this.corridor = corridor;
-        this.paymentHall = paymentHall;
-        this.paymentPoint = paymentPoint;
-        this.customerCto = customerCto;
+
+    public AECashier(SACorridor[] corridors, SAPaymentHall paymentHall, SAPaymentPoint paymentPoint, int cto) {
+            this.corridors = corridors;
+            this.paymentHall = paymentHall;
+            this.paymentPoint = paymentPoint;
+            this.customerCto = cto;
     }
 
 
@@ -35,19 +36,18 @@ public class AECashier extends Thread {
             } catch (InterruptedException ex) {
                 Logger.getLogger(AECashier.class.getName()).log(Level.SEVERE, null, ex);
             }
-            //System.out.println(corridor.getNumberOfCostumers()+"----"+paymentHall.getNumberOfCostumers());
-            if(corridor.checkFinal())
+            
+            for(int i =0; i<3;i++)
             {
-               // System.out.println("ENTROU");
-            }
-            if(corridor.checkFinal() && paymentHall.getNumberOfCostumers() <= 2)
-            {
-              //  System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
-       
-                corridor.call();
-               // System.out.println(totalFinished);
+
+                if(corridors[i].checkFinal()==true &&paymentHall.getNumberOfCostumers() <= 2)
+                {
+                    System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());                    
+                    corridors[i].call();
+                }
+                               // System.out.println(totalFinished);
                 //System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
-            }          
+            }         
           
           if(paymentHall.getNumberOfCostumers() == 2)
           {
@@ -56,17 +56,11 @@ public class AECashier extends Thread {
           
           if(paymentHall.getNumberOfCostumers() > 0)
           {
-            //  System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint");
+              //System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint--"+totalFinished);
               paymentHall.call();
               totalFinished++;
           }
-          
-          
-          if(corridor.getNumberOfCostumers()==0 && paymentHall.getNumberOfCostumers() ==0)
-          {
-             // System.out.println(totalFinished);
-          }
-
+           
         }
     }
 }
