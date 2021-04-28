@@ -7,49 +7,42 @@ import SAEntranceHall.IEntranceHall_Customer;
 import SAIdle.IIdle_Customer;
 import SAOutsideHall.IOutsideHall_Customer;
 import SAPaymentHall.SAPaymentHall;
-import SAPaymentPoint.SAPaymentPoint;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/**
- * Não pretende implementar a entidade activa Customer. Serve apenas para dar pistas como o
- * Thread Custumer deve recorrer a àreas partilhadas para gerir as transições de estado.
- * @author omp
- */
+
+
+
 public class AECustomer extends Thread { 
     
-    // id do customer
-    private final int customerId;
-    
-    private int whereTheCostumerIs = -1;
-    private int cto;
+    // id of customer
+    private final int customerId;   
+    // state of costumer -1 for idle, 0 for outsideHall, 1 for entrancehall, 2 for corridorhall, 3 for corridor , 4 for paymenthall e 5 for paymentPoint e ir idle 
+    private int whereTheCostumerIs = -1;    
+    // time it takes for each step
+    private final int cto;    
+    // id of the corridorhall and corridor where the costumer will pass
     private int idCorridor = 0;
+    // variable that says how many steps the customer has done 
     private int nTimesWalked = 0;
     
-    // área partilhada Idle
+    // shared region Idle
     private final IIdle_Customer idle;
-    // área partilhada OutsideHall
+    // shared region OutsideHall
     private final IOutsideHall_Customer outsideHall;
-    // área partilhada EntranceHall
+    // shared region EntranceHall
     private final IEntranceHall_Customer entranceHall;
-    // área partilhada CorridorHall
+    // shared region CorridorHall
     private final ICorridorHall_Customer corridorHalls [];
-    //área partilhada Corridors
+    // shared region Corridors
     private final SACorridor corridors [];
-    
+    // shared region PaymentHall
     private final SAPaymentHall paymentHall;
-    
-    private final SAPaymentPoint paymentPoint;
-    
-    private boolean exitFlag = true;
+    //Variable that controls the while of the Thread
+    private final boolean exitFlag = true;
     
     
     
-    public AECustomer( int customerId,int cto ,IIdle_Customer idle, IOutsideHall_Customer outsideHall , IEntranceHall_Customer entranceHall, ICorridorHall_Customer corridorHalls [], SACorridor corridors [], SAPaymentHall paymentHall, SAPaymentPoint paymentPoint) {
+    public AECustomer( int customerId,int cto ,IIdle_Customer idle, IOutsideHall_Customer outsideHall , IEntranceHall_Customer entranceHall, ICorridorHall_Customer corridorHalls [], SACorridor corridors [], SAPaymentHall paymentHall) {
         this.customerId = customerId;
         this.idle = idle;
         this.outsideHall = outsideHall;
@@ -58,9 +51,11 @@ public class AECustomer extends Thread {
         this.cto = cto;
         this.corridors = corridors;
         this.paymentHall = paymentHall;
-        this.paymentPoint = paymentPoint;
     }
     
+    /**
+     * Function that changes costumer to idle (AEControl uses this function)
+     */
     public void changeCostumerStateIdle()
     {
         this.whereTheCostumerIs = -1;
@@ -70,27 +65,25 @@ public class AECustomer extends Thread {
     public void run() {
         while ( exitFlag ) {
 
+            //If costumer enters here he will stay idle
             if(whereTheCostumerIs == -1)
             {
-                System.out.println("VOU DORMIR"+customerId);
                 idle.idle(customerId);
-                System.out.println("ACORDEI!"+customerId);
                 whereTheCostumerIs ++;
             }
-            
+            //If costumer enters here he will enter outsideHall
             if(whereTheCostumerIs == 0)
             {
-                System.out.println("COSTUMER "+customerId+" - OutSideHall->"+customerId+"----" +whereTheCostumerIs);                
                 whereTheCostumerIs++;
                 outsideHall.in(customerId); 
-                
             }
+            //If costumer enters here he will enter entranceHall
             if(whereTheCostumerIs == 1)
             {
-               // System.out.println("COSTUMER "+customerId+" - EntranceHall->"+customerId+"----" +whereTheCostumerIs);
                 whereTheCostumerIs++;
                 entranceHall.in(customerId);
             }
+            //If costumer enters here he will enter a corridorHall with the least costumers inside
             if(whereTheCostumerIs == 2)
             {
                 whereTheCostumerIs++;
@@ -105,12 +98,11 @@ public class AECustomer extends Thread {
                         idCorridor = i;
                     }
                 }
-                //System.out.println("COSTUMER "+customerId+" - CorridorHall->"+idLowerCorridorHall+"----"+whereTheCostumerIs+"----"+corridorHalls[idLowerCorridorHall].getNumberOfCostumers());
                 corridorHalls[idLowerCorridorHall].in(customerId,corridors[idCorridor].getNumberOfCostumers(),corridors[idCorridor].firstSlotOpen());  
             }
+            //If costumer enters here he will enter a corridor that is connected to the previous corridorHall and enter every time until it hits the 10 step
             if(whereTheCostumerIs == 3)
             {
-             //   System.out.println("COSTUMER "+customerId+" - Corridor->"+idCorridor+"----"+whereTheCostumerIs+"----"+corridors[idCorridor].getNumberOfCostumers()+"-----"+corridorHalls[idCorridor].getNumberOfCostumers());
                 corridors[idCorridor].inCorridor(customerId,nTimesWalked,corridorHalls[idCorridor].getFifo());
                 try {
                     sleep(cto);
@@ -123,22 +115,21 @@ public class AECustomer extends Thread {
                     whereTheCostumerIs++;            
                 }                      
             }
+            //If costumer enters here he will enter the paymentHall
             if(whereTheCostumerIs == 4)
             {
-               // System.out.println("COSTUMER "+customerId+" - PaymentHall->"+idCorridor+"----"+whereTheCostumerIs);
                 whereTheCostumerIs++;
-                
                 paymentHall.in(customerId);
-             //   System.out.println(customerId+"????????????????????????????????????????????");
             }
+            //If costumer enters here he will its the paymentPoint and then goes idle
             if(whereTheCostumerIs == 5)
             {
+                System.out.println("Costumer: "+ customerId + " Just Finished");
                 try {
                     sleep(1000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(AECustomer.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println("COSTUMER "+customerId+"----"+whereTheCostumerIs);
                 nTimesWalked = 0;
                 whereTheCostumerIs=-1;
             }            

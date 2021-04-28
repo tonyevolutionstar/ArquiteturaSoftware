@@ -3,22 +3,6 @@ package FIFO;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Não pretende ser a versão final do FIFO. Cada grupo deve usar o FIFO que mais 
- * lhe convier. Tb pode e deve alterar o aqui apresentado.
- * 
- * Nesta versão, os Customers entram no fifo e dp ficam a aguardar autorização
- * para sair. Tudo isto ocorre no método in.
- * 
- * A autorização para sair é dada pela Manager em out. Dp de ser dada a 
- * autorização para sair, Manager fica a aguardar que o Customer confirme a
- * saída.
- * 
- * No caso de o fifo ser criado com a dimensão = 99, não seria necessário 
- * verificar se está cheio.
- * 
- * @author omp
- */
 public class FIFO implements IFIFO {
        
     // lock para acesso à área partilhada 
@@ -65,6 +49,7 @@ public class FIFO implements IFIFO {
         idxIn = 0;
         idxOut = 0; 
     }
+    
     
     public int returnCount()
     {
@@ -171,8 +156,7 @@ public class FIFO implements IFIFO {
             rl.unlock();
         }
     }
-    
-    
+     
     public void outCostumer() {
         try {
             rl.lock();

@@ -1,10 +1,7 @@
 package ActiveEntity;
-import SACorridor.ICorridor_Cashier;
 import SACorridor.SACorridor;
 import SAPaymentHall.IPaymentHall_Cashier;
 import SAPaymentHall.SAPaymentHall;
-import SAPaymentPoint.IPaymentPoint_Cashier;
-import SAPaymentPoint.SAPaymentPoint;
 import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,16 +10,12 @@ import java.util.logging.Logger;
 public class AECashier extends Thread { 
 
     private final IPaymentHall_Cashier paymentHall;
-    private final IPaymentPoint_Cashier paymentPoint;
     private final SACorridor [] corridors;
-    private int customerCto;
-    private int totalFinished;
-   
+    private final int customerCto;
 
-    public AECashier(SACorridor[] corridors, SAPaymentHall paymentHall, SAPaymentPoint paymentPoint, int cto) {
+    public AECashier(SACorridor[] corridors, SAPaymentHall paymentHall, int cto) {
             this.corridors = corridors;
             this.paymentHall = paymentHall;
-            this.paymentPoint = paymentPoint;
             this.customerCto = cto;
     }
 
@@ -31,6 +24,7 @@ public class AECashier extends Thread {
     public void run() {
         while ( true ) {
          
+            //sleep so it synchronizes with the costumers steps
             try {
                 sleep(this.customerCto);
             } catch (InterruptedException ex) {
@@ -42,6 +36,7 @@ public class AECashier extends Thread {
             int lowestTimeId=0;
             for(int i =0; i<3;i++)
             {
+                //check if there is any costumer in the last step of each corridor
                 if(corridors[i].checkFinal()==true && paymentHall.getNumberOfCostumers() <= 2)
                 {
                     if(lowestTime == 0)
@@ -51,6 +46,7 @@ public class AECashier extends Thread {
                        lowestTimeId=i;
                        continue;
                     }
+                    //in case there are more then 1 costumer waiting to enter the paymentHall, cashier chooses the one who has been waiting longer
                     if(lowestTime>corridors[i].getTimer())
                     {
                        numberCorridorsReady++;
@@ -60,23 +56,16 @@ public class AECashier extends Thread {
                     numberCorridorsReady++;
                 }                
             }   
+            //Cashier pick one costumer
             if(numberCorridorsReady>0)
             {
-                    System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());                    
-                    corridors[lowestTimeId].call();                
+                corridors[lowestTimeId].call();                
             }
-          
-          if(paymentHall.getNumberOfCostumers() == 2)
-          {
-              System.out.println("CASHIER ---- PAYMENTHALL cheio");
-          }
-          
-          if(paymentHall.getNumberOfCostumers() > 0)
-          {
-              System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint--"+totalFinished);
-              paymentHall.call();
-              totalFinished++;
-          } 
+            //pick one costumer from the paymentHall
+            if(paymentHall.getNumberOfCostumers() > 0)
+            {
+                paymentHall.call();
+            } 
         }
     }
 }

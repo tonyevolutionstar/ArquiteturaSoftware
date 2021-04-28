@@ -50,7 +50,6 @@ public class OIS extends javax.swing.JFrame {
         final SACorridorHall[] corridorHalls = new SACorridorHall[N_CORRIDOR_HALL];
         final SACorridor[] corridors = new SACorridor[N_CORRIDOR];
         final SAPaymentHall paymentHall = new SAPaymentHall(2);
-        final SAPaymentPoint paymentPoint = new SAPaymentPoint(1);
         
         
         final AECustomer[] aeCustomer = new AECustomer[ MAX_CUSTOMERS ];
@@ -62,12 +61,12 @@ public class OIS extends javax.swing.JFrame {
            corridors[i] = new SACorridor(10,corridorHalls[i].getFifo());
         }
         
-        final AECashier aeCashier = new AECashier(corridors,paymentHall,paymentPoint,cto);
+        final AECashier aeCashier = new AECashier(corridors,paymentHall,cto);
         final AEControl aeControl = new AEControl(aeCustomer,aeManager,aeCashier,idle,outsideHall,entranceHall,corridorHalls,corridors,paymentHall);
         
         
         for ( int i = 0; i < MAX_CUSTOMERS; i++ ) {
-            aeCustomer[ i ] = new AECustomer( i,cto,(IIdle_Customer) idle,(IOutsideHall_Customer) outsideHall, (IEntranceHall_Customer) entranceHall, corridorHalls,  corridors, paymentHall, paymentPoint);
+            aeCustomer[ i ] = new AECustomer( i,cto,(IIdle_Customer) idle,(IOutsideHall_Customer) outsideHall, (IEntranceHall_Customer) entranceHall, corridorHalls,  corridors, paymentHall);
             aeCustomer[ i ].start();
         }
 

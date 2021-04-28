@@ -11,12 +11,6 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Esta entidade é responsável por fazer executar os comandos originados no OCC
- * tais como start, stop, end, etc....
- * 
- * @author omp
- */
 public class AEControl extends Thread {
 
     private final IIdle_Control idle;
@@ -43,15 +37,27 @@ public class AEControl extends Thread {
         this.aeCustomer = aeCustomer;
         this.aeManager = aeManager;
     }
+    
+    /**
+     * Function that starts the simulation
+     * @param nCustomers Number of costumer to start
+     */
     public void start( int nCustomers ) {
         aeManager.resume();
         aeCashier.resume();
         idle.start( nCustomers );
     }
+    
+    /**
+     * Terminates the Simulation
+     */
     public void end() {
         System.exit(0);
     }
     
+    /**
+     * Suspends the currentShopping
+     */
     public void suspendShopping()
     {
         aeManager.suspend();
@@ -64,6 +70,9 @@ public class AEControl extends Thread {
         
     }
     
+    /**
+     * Resumes the pausedShopping
+     */
     public void resumeShopping() {
         aeManager.resume();
         for(int i=0;i<aeCustomer.length;i++)
@@ -74,6 +83,9 @@ public class AEControl extends Thread {
         aeCashier.resume();
     }
     
+    /**
+     * Function that stops All the operations of costumers
+     */
     public void stopShopping()
     {
         for(int i=0;i<aeCustomer.length;i++)
@@ -108,10 +120,7 @@ public class AEControl extends Thread {
         for(int i=0;i<3;i++)
         {
             this.corridors[i].cleanCorridors();
-        }
-       
-        System.out.println("OUTSIDEHALL"+this.outsideHall.getNumberOfCostumers()+"ENTRANCEHALL"+this.entranceHall.getNumberOfCostumers()+"CORRIDORHALLS1"+this.corridorHalls[0].getNumberOfCostumers()+"CORRIDORHALLS2"+this.corridorHalls[1].getNumberOfCostumers()+"CORRIDORHALLS3"+this.corridorHalls[2].getNumberOfCostumers()+"PAYMENTHALL"+this.paymentHall.getNumberOfCostumers());
-        
+        }        
     }
     
     
@@ -127,10 +136,11 @@ public class AEControl extends Thread {
         }
             this.start(50);  
         try {
-            sleep(3500);
+            sleep(350000);
         } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
         }
+        /*
         if(signalToSTOP==1)
         {
             this.aeCashier.suspend();
@@ -150,7 +160,7 @@ public class AEControl extends Thread {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.start(50);
-            
+            */
         
             
             /*     try {
