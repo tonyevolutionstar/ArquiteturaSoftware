@@ -63,7 +63,7 @@ public class OIS extends javax.swing.JFrame {
         }
         
         final AECashier aeCashier = new AECashier(corridors,paymentHall,paymentPoint,cto);
-        final AEControl aeControl = new AEControl(aeCustomer,aeManager,aeCashier,idle,outsideHall,entranceHall);
+        final AEControl aeControl = new AEControl(aeCustomer,aeManager,aeCashier,idle,outsideHall,entranceHall,corridorHalls,corridors,paymentHall);
         
         
         for ( int i = 0; i < MAX_CUSTOMERS; i++ ) {

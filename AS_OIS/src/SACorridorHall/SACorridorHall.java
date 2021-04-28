@@ -28,4 +28,9 @@ public class SACorridorHall implements ICorridorHall_Customer,
         return fifo;
     }
     
+    public void out()
+    {
+        this.fifo.outCostumer();
+    }
+    
 }

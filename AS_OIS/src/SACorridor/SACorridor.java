@@ -43,7 +43,10 @@ public class SACorridor implements ICorridor_Customer,
     {
         return fifo.check();
     }
-   
+    public void cleanCorridors()
+    {
+        fifo.cleanCorridors();
+    }
 
     @Override
     public void inCorridor(int customerId,int nTimesWalked,FIFOCorridor corridorHallFifo) {

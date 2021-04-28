@@ -60,6 +60,12 @@ public class AECustomer extends Thread {
         this.paymentHall = paymentHall;
         this.paymentPoint = paymentPoint;
     }
+    
+    public void changeCostumerStateIdle()
+    {
+        this.whereTheCostumerIs = -1;
+    }
+        
     @Override
     public void run() {
         while ( exitFlag ) {

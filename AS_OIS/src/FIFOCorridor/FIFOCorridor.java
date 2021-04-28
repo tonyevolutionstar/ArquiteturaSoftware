@@ -93,6 +93,15 @@ public class FIFOCorridor implements IFIFOCorridor {
         return this.time;
     }
     
+    public void cleanCorridors()
+    {
+        this.count = 0;
+        for(int i=0;i<10;i++)
+        {
+            this.customerId[i]=999;
+        }
+    }
+    
     @Override
     public boolean returnFirstSlot()
     {
