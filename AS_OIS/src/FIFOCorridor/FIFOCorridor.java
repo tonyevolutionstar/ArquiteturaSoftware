@@ -51,6 +51,8 @@ public class FIFOCorridor implements IFIFOCorridor {
     private int count = 0;
     
     private int totalCount = 0;
+    
+    private long time;
 
     
     private static int id_in = 0;
@@ -86,6 +88,11 @@ public class FIFOCorridor implements IFIFOCorridor {
         return this.customerId[9]!=999;
     }
     
+    public long getTimer()
+    {
+        return this.time;
+    }
+    
     @Override
     public boolean returnFirstSlot()
     {
@@ -111,6 +118,11 @@ public class FIFOCorridor implements IFIFOCorridor {
                            
             int stuck8 = 0;
             
+            if(nTimesWalked == 9)
+            {
+                this.time = System.currentTimeMillis();
+            }
+            
             if(nTimesWalked == 0)
             {
                 this.customerId[0] = customerId; 
@@ -129,16 +141,16 @@ public class FIFOCorridor implements IFIFOCorridor {
             {
                 cFull.signalAll();
             }
-
             // incrementar número customers no fifo
 
             System.out.println("IN("+customerId+")"+Arrays.toString(this.customerId));
             System.out.println("TESTE-"+this.customerId[9]+"--"+count);
             
             //Verificar se é possivle chamar outro costumer para o corridor
-            if(nTimesWalked >= 2 && count==1 &&fifoCorridorHall.returnCount()>0)
+            if(nTimesWalked >= 2 && count==1 && fifoCorridorHall.returnCount()>0)
             {
-                System.out.println("VAI CHAMAR OUTRO COSTUMER PRESO NO CORRIDORHALL--"+fifoCorridorHall.returnCount());
+                //System.out.println("VAI CHAMAR OUTRO COSTUMER PRESO NO CORRIDORHALL--"+fifoCorridorHall.returnCount());
+                System.out.println("ENTROUENTROUENTROU"+"TESTE-"+customerId);
                 fifoCorridorHall.outCostumer();
             }
             
@@ -168,9 +180,7 @@ public class FIFOCorridor implements IFIFOCorridor {
                    // avisar Manager que Customer vai sair. Manager está à espera na
                    // Condition cLeaving
                    cLeaving.signal();
-
-
-    
+                   
                    this.customerId[9] = 999;
                    count--;   
                 }
@@ -185,12 +195,17 @@ public class FIFOCorridor implements IFIFOCorridor {
     }
     //CORRIDOR HALLS
     @Override
-    public int in( int customerId, int nextCountCorridor, boolean firstSlotOpen ) {
+    public int in( int customerId, int nextCountCorridor, boolean firstSlotOpen) {
         int idx;
         int id = 0;
         try {
             // garantir acesso em exclusividade
             rl.lock();
+            // caso o corridor esteja vazio
+            if(nextCountCorridor<1 && (firstSlotOpen == true))
+            {
+                return id;
+            }
                              
             // se fifo cheio, espera na Condition cFull
             while ( count == maxCustomers )
@@ -218,7 +233,6 @@ public class FIFOCorridor implements IFIFOCorridor {
             totalCount++;
             
             
-            // System.out.println("DENTRO COSTUMER "+customerId+"IDX"+idx+"------"+totalCount+firstSlotOpen+nextCountCorridor);
             // ciclo à espera de autorização para sair do fifo
             if(nextCountCorridor >= 1 || firstSlotOpen == false)
                {
@@ -298,7 +312,6 @@ public class FIFOCorridor implements IFIFOCorridor {
             int idx = idxOut;
             // atualizar idxOut
             idxOut = (++idxOut) % maxCustomers; 
-                       // System.out.println("SAIR-"+idxOut);
             // autorizar a saída do customer q há mais tempo está no fifo
             leave[ idx ] = true;
             // acordar o customer

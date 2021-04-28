@@ -32,35 +32,51 @@ public class AECashier extends Thread {
         while ( true ) {
          
             try {
-                sleep(100);
+                sleep(this.customerCto);
             } catch (InterruptedException ex) {
                 Logger.getLogger(AECashier.class.getName()).log(Level.SEVERE, null, ex);
             }
             
+            int numberCorridorsReady = 0;
+            long lowestTime=0;
+            int lowestTimeId=0;
             for(int i =0; i<3;i++)
             {
-
-                if(corridors[i].checkFinal()==true &&paymentHall.getNumberOfCostumers() <= 2)
+                if(corridors[i].checkFinal()==true && paymentHall.getNumberOfCostumers() <= 2)
                 {
+                    if(lowestTime == 0)
+                    {
+                       lowestTime= corridors[i].getTimer();
+                       numberCorridorsReady++;
+                       lowestTimeId=i;
+                       continue;
+                    }
+                    if(lowestTime>corridors[i].getTimer())
+                    {
+                       numberCorridorsReady++;
+                       lowestTime = corridors[i].getTimer();
+                       lowestTimeId=i;
+                    }                    
+                    numberCorridorsReady++;
+                }                
+            }   
+            if(numberCorridorsReady>0)
+            {
                     System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());                    
-                    corridors[i].call();
-                }
-                               // System.out.println(totalFinished);
-                //System.out.println("CASHIER ---- Chamar Costumer para o PaymentHall--"+paymentHall.getNumberOfCostumers());
-            }         
+                    corridors[lowestTimeId].call();                
+            }
           
           if(paymentHall.getNumberOfCostumers() == 2)
           {
-             // System.out.println("CASHIER ---- PAYMENTHALL cheio");
+              System.out.println("CASHIER ---- PAYMENTHALL cheio");
           }
           
           if(paymentHall.getNumberOfCostumers() > 0)
           {
-              //System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint--"+totalFinished);
+              System.out.println("CASHIER ---- Chamar Costumer para o PaymentPoint--"+totalFinished);
               paymentHall.call();
               totalFinished++;
-          }
-           
+          } 
         }
     }
 }

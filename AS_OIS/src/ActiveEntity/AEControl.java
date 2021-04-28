@@ -79,49 +79,47 @@ public class AEControl extends Thread {
         } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if(teste==1)
-        {
-            this.start(99);  
-            teste=0;
-        }
-        
-
+            this.start(50);  
+        try {
+            sleep(100000);
             
-        /*
-        try {
+            
+            
+            /*
+            try {
             sleep(2500);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       // this.aeManager.letCostumerInEntranceHall();
-        try {
+            }
+            // this.aeManager.letCostumerInEntranceHall();
+            try {
             sleep(2500);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       // this.aeManager.letCostumerInCorridorHall();
-                try {
+            }
+            // this.aeManager.letCostumerInCorridorHall();
+            try {
             sleep(2500);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       // this.aeManager.letCostumerInEntranceHall();
-                try {
+            }
+            // this.aeManager.letCostumerInEntranceHall();
+            try {
             sleep(2500);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       // this.aeManager.letCostumerInEntranceHall();
-                try {
+            }
+            // this.aeManager.letCostumerInEntranceHall();
+            try {
             sleep(2500);
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        this.aeManager.letCostumerInCorridorHall();
-        
-        
-        
-        try {
+            }
+            this.aeManager.letCostumerInCorridorHall();
+            
+            
+            
+            try {
             sleep(100000);
             /*   try {
             sleep(500);
@@ -142,9 +140,12 @@ public class AEControl extends Thread {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
             }
             start(12);
-              } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
+            Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            */
+        } catch (InterruptedException ex) {
             Logger.getLogger(AEControl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        */
     }
 }

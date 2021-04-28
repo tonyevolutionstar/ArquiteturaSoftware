@@ -23,6 +23,11 @@ public class SACorridor implements ICorridor_Customer,
         return fifo.returnCount();
     }
     
+    public long getTimer()
+    {
+        return fifo.getTimer();
+    }
+    
     @Override
     public boolean firstSlotOpen()
     {
@@ -32,12 +37,6 @@ public class SACorridor implements ICorridor_Customer,
     @Override
     public void call() {
         fifo.out();
-        //System.out.println("VAI ACORDAR OUTRO THREAD AO HALL");
-        //System.out.println("PORQUE È QUE NÃO ENTRAS?"+corridorHallFifo.returnCount()+"---"+fifo.returnFirstSlot()+"----"+fifo.returnCount());
-        if(corridorHallFifo.returnCount()>=1 && fifo.returnFirstSlot()==true && fifo.returnCount()<2)
-        {
-         //   corridorHallFifo.outCostumer();                  
-        }
     }
     
     public boolean checkFinal()

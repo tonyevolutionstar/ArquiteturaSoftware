@@ -44,8 +44,7 @@ public class AEManager extends Thread {
     @Override
     public void run() {
         while ( exitFlag ) {
-                         
-            
+
             if(entranceHall.getNumberOfCostumers()==0 && outsideHall.getNumberOfCostumers()==0 || "manual".equals(this.managerState))
             {
                 try {

@@ -35,8 +35,8 @@ public class OIS extends javax.swing.JFrame {
         initOIS();
     }
     private void initOIS() {
-        final int MAX_CUSTOMERS = 99;
-        final int cto = 10;
+        final int MAX_CUSTOMERS = 50;
+        final int cto = 100;
         final int sto = 100;
         final int N_CORRIDOR_HALL = 3;
         final int N_CORRIDOR = 3;

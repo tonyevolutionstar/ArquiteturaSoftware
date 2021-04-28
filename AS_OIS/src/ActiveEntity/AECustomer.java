@@ -127,7 +127,12 @@ public class AECustomer extends Thread {
             }
             if(whereTheCostumerIs == 5)
             {
-                System.out.println("COSTUMER "+customerId+" - PaymentPoint->"+idCorridor+"----"+whereTheCostumerIs);
+                try {
+                    sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(AECustomer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println("COSTUMER "+customerId+"----"+whereTheCostumerIs);
                 nTimesWalked = 0;
                 whereTheCostumerIs=-1;
             }            
